@@ -5,7 +5,7 @@ KAFKA_CONTAINER="tweeeeedbt-kafka-1"
 BROKER="localhost:9092"
 
 # Topics you want to reset
-TOPICS=("ipl_raw" "VerifiedUserCheck" "GeoLocation" "TeamSpecific")
+TOPICS=("ipl_raw" "VerifiedUserCheck" "GeoLocation" "TeamSpecific", "VerifiedUserWindowedCount")
 
 echo "🧹 Deleting old topics..."
 
