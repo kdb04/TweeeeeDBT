@@ -1,3 +1,5 @@
 venv/
 .env
+test/
 IPL_2022_tweets.csv
+.python-version
