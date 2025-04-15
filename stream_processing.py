@@ -45,9 +45,9 @@ verified_df = parsed_df.filter(lower(trim(col("user_verified"))) == "true")
 # 2. Geo-tagged tweets (assuming `user_location` is not null/empty)
 geo_df = parsed_df.filter(col("user_location").isNotNull() & (col("user_location") != ""))
 
-# 3. Team-specific mentions (checking if tweet text mentions a team)
+# 3. Team-specific mentions (checking hashtags for team mentions)
 team_df = parsed_df.filter(
-    col("text").rlike("(?i)(RCB|CSK|MI|KKR|SRH|RR|DC|LSG|GT|PBKS)")
+    lower(col("hashtags")).rlike(r'\[.*?(rcb|csk).*?\]')  # Look for RCB or CSK within the list of hashtags in csv
 )
 
 # Function to write to Kafka
