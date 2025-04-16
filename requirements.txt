@@ -1,4 +1,5 @@
 kafka-python
 pyspark
 pandas
+psycopg2-binary
 psycopg2
