@@ -210,8 +210,10 @@ def verified_user_windowed_count_to_kafka(df, topic):
 write_to_kafka(verified_df, "VerifiedUserCheck")
 
 # 2. Geo-tagged tweets
-geo_df = parsed_df.filter(col("user_location").isNotNull() & (col("user_location") != ""))
-write_to_kafka(geo_df, "GeoLocation")
+location_df = parsed_df.filter(
+    lower(col("user_location")).rlike(r"\b(new\s*)?delhi\b|\bmumbai\b")
+)
+write_to_kafka(location_df, "GeoLocation")
 
 # 3. Team-specific mentions (e.g., RCB, CSK)
 team_df = parsed_df.filter(
