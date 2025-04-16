@@ -1,3 +1,4 @@
 kafka-python
 pyspark
 pandas
+psycopg2
