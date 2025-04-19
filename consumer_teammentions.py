@@ -4,14 +4,18 @@ import time
 import ast  # to handle string rep of lists
 import psycopg2
 import os
+import psutil
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # PostgreSQL connection
 DB_CONFIG = {
-    'dbname': os.getenv('POSTGRES_DB', 'tweedbt'),
-    'user': os.getenv('POSTGRES_USER', 'kk'),
-    'password': os.getenv('POSTGRES_PASSWORD', 'admin'),
-    'host': os.getenv('POSTGRES_HOST', '127.0.0.1'),
-    'port': os.getenv('POSTGRES_PORT', '5432')
+    'dbname': os.getenv('POSTGRES_DB'),
+    'user': os.getenv('POSTGRES_USER'),
+    'password': os.getenv('POSTGRES_PASSWORD'),
+    'host': os.getenv('POSTGRES_HOST'),
+    'port': os.getenv('POSTGRES_PORT')
 }
 
 # Connect to PostgreSQL
@@ -27,10 +31,13 @@ consumer = KafkaConsumer(
     group_id=None
 )
 
+process = psutil.Process()
 print("Waiting for tweets with RCB/CSK hashtags...")
 print("-" * 50)
 
 for msg in consumer:
+    start_time = time.time()
+
     tweet = msg.value
     try:
         hashtags = ast.literal_eval(tweet['hashtags'])
@@ -52,6 +59,15 @@ for msg in consumer:
             cursor.execute(insert_query, (tweet['user_name'], tweet['text'], formatted_hashtags))
             conn.commit()
             print(f"Inserted tweet")
+
+            end_time = time.time()
+            cpu = process.cpu_percent(interval=1)
+            mem = process.memory_info().rss / 1024**2
+
+            print("\nConsumer for team mentions")
+            print(f"Execution Time:{end_time - start_time:.2f} sec")
+            print(f"CPU Usage: {cpu:.2f}%")
+            print(f"Memory Usage: {mem:.2f} MB")
 
             time.sleep(5)
 

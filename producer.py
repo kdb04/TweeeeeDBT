@@ -10,7 +10,7 @@ producer = KafkaProducer(
 
 df = pd.read_csv("IPL_2022_tweets.csv")
 
-for _, row in df.iterrows():
+for _, row in df.head(10000).iterrows():
     data = row.to_dict()
     producer.send("ipl_raw", value=data)
     time.sleep(0.5)  # simulate streaming

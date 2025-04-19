@@ -2,15 +2,19 @@ from kafka import KafkaConsumer
 import json
 import psycopg2
 import os
+from dotenv import load_dotenv
+import psutil
+import time
+
+load_dotenv()
 
 # PostgreSQL connection
-# other users make a .env file and fill it 
 DB_CONFIG = {
-        'dbname': os.getenv('POSTGRES_DB', 'tweedbt'),
-        'user': os.getenv('POSTGRES_USER', 'kk'),
-        'password': os.getenv('POSTGRES_PASSWORD', 'admin'),
-        'host': os.getenv('POSTGRES_HOST', '127.0.0.1'),
-        'port': os.getenv('POSTGRES_PORT', '5432')
+        'dbname': os.getenv('POSTGRES_DB'),
+        'user': os.getenv('POSTGRES_USER'),
+        'password': os.getenv('POSTGRES_PASSWORD'),
+        'host': os.getenv('POSTGRES_HOST'),
+        'port': os.getenv('POSTGRES_PORT')
         }
 
 conn = psycopg2.connect(**DB_CONFIG)
@@ -28,6 +32,9 @@ consumer = KafkaConsumer(
 print("Listening to Kafka topic: VerifiedUserCheck")
 
 for msg in consumer:
+    start_time = time.time()
+    process = psutil.Process()
+
     data = msg.value
     user_name = data.get("user_name")
     user_verified = str(data.get("user_verified")).lower() == "true"
@@ -43,3 +50,15 @@ for msg in consumer:
     except Exception as e:
         print(f"Error inserting into DB: {e}")
         conn.rollback()
+
+    end_time = time.time()
+    cpu = process.cpu_percent(interval=1)
+    mem = process.memory_info().rss / 1024**2
+
+    print("\nConsumer for verified users")
+    print(f"Execution Time: {end_time-start_time:.2f} sec")
+    print(f"CPU Usage: {cpu:.2f}%")
+    print(f"Memory Usage: {mem:.2f} MB")
+
+    
+
