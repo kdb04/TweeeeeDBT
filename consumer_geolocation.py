@@ -39,10 +39,11 @@ mumbai_count = 0
 print("Monitoring tweets from Delhi and Mumbai...")
 print("-" * 50)
 
+start_time = time.time()
+cpu_start = process.cpu_times()
+
 try:
     for msg in consumer:
-        start_time = time.time()
-
         data = msg.value
         location = data.get("user_location", "").lower()
 
@@ -70,18 +71,21 @@ try:
         conn.commit()
         print("Tweet inserted into database")
 
-        end_time = time.time()
-        cpu = process.cpu_percent(interval=0.5)
-        mem = process.memory_info().rss / 1024**2
-
-        print("\nConsumer for geo-location tweets")
-        print(f"Execution Time: {end_time - start_time:.2f} sec")
-        print(f"CPU Usage: {cpu:.2f}%")
-        print(f"Memory Usage: {mem:.2f} MB")
-
         time.sleep(5)
 
 except KeyboardInterrupt:
+    end_time = time.time()
+    cpu_end = process.cpu_times()
+    cpu_time_used = (cpu_end.user + cpu_end.system) - (cpu_start.user + cpu_start.system)
+    wall_time = end_time - start_time
+    cpu = (cpu_time_used/wall_time)*100 if wall_time>0 else 0
+    mem = process.memory_info().rss / 1024**2
+
+    print("\nConsumer for geo-location tweets")
+    print(f"Execution Time: {end_time - start_time:.2f} sec")
+    print(f"CPU Usage: {cpu:.2f}%")
+    print(f"Memory Usage: {mem:.2f} MB")
+
     print("\n Stopping consumer...")
     consumer.close()
     conn.close()
