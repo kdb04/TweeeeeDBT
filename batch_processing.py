@@ -81,9 +81,21 @@ cpu_percent = (cpu_time_used / wall_time) * 100 if wall_time > 0 else 0
 mem = process.memory_info().rss / 1024**2
 
 # Report
-print("\n✅ Batch Job Complete")
+print("\nBatch Job Complete")
 print(f"Execution Time: {wall_time:.2f} sec")
 print(f"CPU Usage: {cpu_percent:.2f}%")
 print(f"Memory Usage: {mem:.2f} MB")
+
+# Insert metrics into batch_metrics table
+try:
+    cursor.execute(
+        "INSERT INTO batch_metrics (execution_time, cpu_percent, memory_usage_mb) VALUES (%s, %s, %s)",
+        (wall_time, cpu_percent, mem)
+    )
+    conn.commit()
+    print("Batch metrics logged\n")
+except Exception as e:
+    print(f"Error inserting metrics: {e}")
+    conn.rollback()
 
 conn.close()

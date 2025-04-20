@@ -110,3 +110,7 @@ python3 consumer_<whatever>.py
 ```bash
 python3 producer.py
 ```
+
+## ToDo 
+- [ ] Folder Structuring
+- [ ] System Architecture Diagram
